@@ -4,16 +4,14 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# VITE_API_URL is injected at build time so Vite bakes it into the bundle
+ARG VITE_API_URL=""
+ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 # ---- runtime stage ----
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-
-# BACKEND_HOST/PORT can be overridden per platform (e.g. backend.railway.internal on Railway)
-ENV BACKEND_HOST=backend
-ENV BACKEND_PORT=3001
-
-CMD ["/bin/sh", "-c", "envsubst '${BACKEND_HOST} ${BACKEND_PORT}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]
