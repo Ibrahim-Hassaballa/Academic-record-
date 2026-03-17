@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import type { Student, AuthResponse, TempTokenResponse } from '../types'
 
+const API_BASE = import.meta.env.VITE_API_URL ?? ''
+
 interface AuthContextType {
   user: Student | null
   accessToken: string | null
@@ -32,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
       return
     }
-    fetch('/api/student/profile', {
+    fetch(`${API_BASE}/api/student/profile`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -48,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [logout])
 
   const login = async (username: string, password: string): Promise<TempTokenResponse> => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -61,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const verify2FA = async (tempToken: string, code: string): Promise<void> => {
-    const res = await fetch('/api/auth/verify-2fa', {
+    const res = await fetch(`${API_BASE}/api/auth/verify-2fa`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tempToken, code }),
