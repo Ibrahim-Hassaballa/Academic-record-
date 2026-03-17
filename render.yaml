@@ -1,0 +1,26 @@
+services:
+  # ── Backend ──────────────────────────────────────────────────────────────
+  - type: web
+    name: edugate-backend
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        sync: false   # Set to your frontend URL after deploy, e.g. https://edugate-frontend.onrender.com
+
+  # ── Frontend ─────────────────────────────────────────────────────────────
+  - type: web
+    name: edugate-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        sync: false   # Set to your backend URL after deploy, e.g. https://edugate-backend.onrender.com
